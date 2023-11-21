@@ -1,5 +1,6 @@
 package com.skn.practice;
 
+import java.time.Duration;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,10 +11,7 @@ import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple3;
 
 @SpringBootTest
-class SpringPracticeApplicationTests {
-
-  @Test
-  void contextLoads() {}
+class MonoLearnTest {
 
   @Test
   @Disabled("Not Needed. Just For Practicing")
@@ -28,8 +26,9 @@ class SpringPracticeApplicationTests {
 
   @Test
   @Disabled
-  @DisplayName("Combined Mono")
+  @DisplayName("Mono Zip")
   void workingWithMonoZip() {
+    //* .zip()[static] & .zipWith()[instance] creates `Tuple` of Merged Mono. It Can Return Tuple of Different Data Type
     Mono<String> m1 = Mono.just("Hello!!").log();
     Mono<String> m2 = Mono.just("I am SKN!!!").log();
     Mono<String> m3 = Mono.just("I am also Wang So!!!").log();
@@ -87,6 +86,7 @@ class SpringPracticeApplicationTests {
 
   @Test
   @DisplayName("Mono Flat Map")
+  @Disabled
   void workingWithMonoFlatMap() {
     //* Mono Flat Map Works On Value, Creates A New Mono With That Value & Returns The New Mono
     Mono<String> m1 = Mono.just("This Is Mono Flat Map Data1");
@@ -109,6 +109,7 @@ class SpringPracticeApplicationTests {
 
   @Test
   @DisplayName("Mono Flat Map Many")
+  @Disabled
   void workingWithMonoFlatMapMany() {
     //* Mono Flat Map Many Works On Value, Creates A Flux & Returns That Flux
     Mono<String> m1 = Mono.just("This is Mono Flat Map Many Data1");
@@ -128,5 +129,26 @@ class SpringPracticeApplicationTests {
     flatMapMany2.subscribe(data ->
       System.out.printf("Flat Map Many Data 2: %s\n", data)
     );
+  }
+
+  @Test
+  @DisplayName("Mono Concat")
+  void workingWithMonoConcat() throws InterruptedException {
+    //* Mono Concat Merges Two Mono Instances & Returns A Flux
+    Mono<String> m1 = Mono.just("This is Mono Concat Data1");
+    Mono<String> m2 = Mono.just("This is Mono Concat Data2");
+
+    System.out.printf("Thread: %s\n", Thread.currentThread().getName());
+    Flux<String> concatWith1 = m1
+      .concatWith(m2)
+      .log()
+      .delayElements(Duration.ofMillis(2000)); // Not Needed this method actually, only for practice
+
+    concatWith1.subscribe(data -> {
+      System.out.printf("Thread: %s\n", Thread.currentThread().getName());
+      System.out.printf("Concat Data: %s\n", data);
+    });
+
+    Thread.sleep(5000); // If .delayElements() method is used then this has to be used higher than the delay amount
   }
 }
